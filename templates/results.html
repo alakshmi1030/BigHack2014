@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+	<head>
+	    <meta charset="utf-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <meta name="description" content="">
+	    <meta name="author" content="">
+	    <!-- Bootstrap core CSS -->
+	    <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	    <style type="text/css">
+      		html, body, #map-canvas { 
+      			height: 75%; 
+      			margin: 0; 
+      			padding: 0;
+      		}
+    	</style>
+	    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDY7uj2LuOvR_Ua3k3DlPvV6eh_AGY-uto">
+	    </script>
+	    <script src="../static/bootstrap/js/gmaps.js">
+	    </script>
+		<script type="text/javascript">
+    	  //code to get current latlong
+		  var map;
+
+		  function getLatLong(address){
+		      var geo = new google.maps.Geocoder;
+		      geo.geocode({'address':address},function(results, status){
+		              if (status == google.maps.GeocoderStatus.OK) {
+		                return results[0].geometry.location;
+		              } else {
+		                alert("Geocode was not successful for the following reason: " + status);
+		              }
+		       });
+  		  }
+	      function initialize() {
+	      	var mapOptions = {
+	          zoom: 15
+	        };
+	       	map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
+	        //code for current position
+	        var totalAdd = "{{ address[0] }}" + " {{ address[2] }}";
+	        var coords = []
+	        navigator.geolocation.getCurrentPosition(function(position) {
+      			var pos = new google.maps.LatLng(position.coords.latitude,
+                                       position.coords.longitude);
+      			coords[0] = pos;
+      			var infowindow = new google.maps.InfoWindow({
+        			map: map,
+        			position: pos,
+        			content: 'Your current location'
+      			});
+
+      			var geo = new google.maps.Geocoder;
+      			geo.geocode({'address':totalAdd}, function(results,status){
+      				var newpos = '';
+      				if(status == google.maps.GeocoderStatus.OK) {
+      					var loc = results[0].geometry.location;
+      					var lati = loc.lat();
+      					var longi = loc.lng();
+      					var newpos = new google.maps.LatLng(lati,longi);
+      				} else {
+      					alert("Geocode not successful");
+      				}
+      				coords[1] = newpos;
+
+      				var placeWindow = new google.maps.InfoWindow({
+      					map: map,
+      					position: newpos,
+      					content: 'Destination'
+      				});
+
+      			});
+
+      			map.setCenter(pos)
+      		});
+
+	      }
+
+	      google.maps.event.addDomListener(window, 'load', initialize);
+    	</script>
+	</head>
+
+	<body background="http://vinylsmiths.com/images/P/shutterstock_9769372.jpg" style="background-color:#fff;background-size:cover;" >
+
+		<title>Results</title>
+		<link rel=stylesheet type=text/css>
+		<div class=page>
+		  <h1 style="text-align:center;">Why don't you check this place out:</h1>
+		  <p style ="text-align:center;">{{ name }}</p>
+		  <br>
+		  <p style ="text-align:center;">{{ address }}</p>
+		</div>
+
+		<br>
+
+		<div width="75%" id="map-canvas">
+		</div>
+
+	</body>
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</html>
